@@ -1,1 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
+body {
+  max-width: 499px;
+  font-family: "Tahoma", sans-serif;
+  font-size: 17px;
+  line-height: 24px;
+  color: #163a44;
+  margin: auto;
+  background-color: #b1d9d0;
+}
