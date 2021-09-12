@@ -1,27 +1,46 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+  ViewChildren,
+  ViewContainerRef,
+  Renderer2,
+} from '@angular/core';
 import { DraggableServiceService } from './draggable-service.service';
+import { TaskListComponent } from './task-list/task-list.component';
+import { TaskListItemComponent } from './task-list-item/task-list-item.component';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
   title = 'Trello';
   items: string[] = ['one', 'two', 'three'];
 
-  @ViewChild('tasksList') tasksListElement: any;
-	@ViewChild('taskListItem') taskElements: any;    
-  
-  constructor(private draggableService: DraggableServiceService) {}
+  @ViewChild('tasksList', { read: ElementRef, static: false })
+  tasksListElement: any;
+  @ViewChild(TaskListItemComponent, { static: false, read: ElementRef })
+  taskElements: any;
 
-  ngOnInit(): void {
-  }
+  constructor(
+    private draggableService: DraggableServiceService,
+    private renderer: Renderer2
+  ) {}
+
+  ngOnInit(): void {}
+
+  ngAfterViewInit(): void {}
 
   dragOverItem(event): void {
     event.preventDefault();
 
-    const activeElement = this.tasksListElement.querySelector(`.selected`);
+    const activeElement =
+      this.tasksListElement.nativeElement.querySelector(`.selected`);
+    console.log(activeElement);
     const currentElement = event.target;
     const isMoveable =
       activeElement !== currentElement &&
@@ -30,7 +49,10 @@ export class AppComponent implements OnInit {
     if (!isMoveable) {
       return;
     }
-    const nextElement = this.getNextElement(event.clientY, currentElement);
+    const nextElement = this.draggableService.getNextElement(
+      event.clientY,
+      currentElement
+    );
 
     if (
       (nextElement && activeElement === nextElement.previousElementSibling) ||
@@ -38,19 +60,10 @@ export class AppComponent implements OnInit {
     ) {
       return;
     }
-    this.tasksListElement.insertBefore(activeElement, nextElement);
+    this.renderer.insertBefore(
+      this.tasksListElement.nativeElement,
+      activeElement,
+      nextElement
+    );
   }
-
-  getNextElement = (cursorPosition, currentElement) => {
-    const currentElementCoord = currentElement.getBoundingClientRect();
-    const currentElementCenter =
-      currentElementCoord.y + currentElementCoord.height / 2;
-
-    const nextElement =
-      cursorPosition < currentElementCenter
-        ? currentElement
-        : currentElement.nextElementSibling;
-
-    return nextElement;
-  };
 }

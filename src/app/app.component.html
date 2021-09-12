@@ -1,8 +1,7 @@
 <div class="tasks">
   <h1>{{ title }}</h1>
-  <app-task-list #taskList>
+  <app-task-list #tasksList>
     <app-task-list-item
-		  #taskListItem
       *ngFor="let item of items"
       (dragOver)="dragOverItem($event)"
     >
